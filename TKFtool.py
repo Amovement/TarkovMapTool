@@ -13,7 +13,7 @@ import atexit
 #截图路径
 ImgPath=str(pathlib.Path.home())+'\\Documents\\Escape from Tarkov\\Screenshots\\'
 #位置刷新间隔（秒）
-sleeptime=1.5
+sleeptime=5
 #自动截图
 auto=False
 #启动自动截图
@@ -85,15 +85,15 @@ def getMarker(driver:webdriver.Edge):
     marker=driver.find_element(By.XPATH, "//*[@class='marker']")
     return marker.get_attribute('style').rstrip("visibility: hidden;")+";"
 
-def setMarker(driver:webdriver.Edge,id,ps='',color='#f9ff01'):
+def setMarker(driver:webdriver.Edge,id,ps='',color='#FF0000'):
     '''设置新marker位置'''
     if not id:
-        id='offline'
+        id='unknown'
     try:
         driver.find_element(By.XPATH, f"//*[@id='{id}']")
     except:
         js=f'''var map=document.querySelector("#map");
-            map.insertAdjacentHTML("beforeend","<div id='{id}' class='marker' style='{ps}background:{color};'></div>");'''
+            map.insertAdjacentHTML("beforeend","<div id='{id}' class='marker' style='{ps}background:{color};color:red;'>{id}</div>");'''
         driver.execute_script(js)
         return
     if ps=='':
@@ -119,25 +119,25 @@ def offline():
 
 if __name__ == "__main__":
     getConfig()
-    driver = webdriver.Edge()
+    driver = webdriver.Edge("./msedgedriver.exe")
     driver.get('https://tarkov-market.com/maps/ground-zero')
     InitDir()
-    kb.on_press(setScreenShoot)#绑定键盘事件调整键盘事件
+    # kb.on_press(setScreenShoot)#绑定键盘事件调整键盘事件
     playerList=[]
     while True:
         time.sleep(sleeptime)
         try:
-            if auto: #是否自动截图
-                kb.press_and_release(key)
+            # if auto: #是否自动截图
+            #     kb.press_and_release(key)
             bt=driver.find_element(By.XPATH, "/html/body/div/div/div/div[2]/div/div/div[1]/div/input")
             bt.click()
-            time.sleep(0.01)
+            time.sleep(0.5)
             bt.send_keys(getPosition())
             #新的标记渲染机制
             ps=getMarker(driver)
             marker=driver.find_element(By.XPATH,"/html/body/div/div/div/div[2]/div/div/div[4]/div")
             driver.execute_script('arguments[0].style.visibility="hidden";',marker)
-            setMarker(driver,playerid,ps,color="#6aff00")
+            setMarker(driver,playerid,ps,color="#FF0000")
             #处理多人
             if server and roomid and playerid:
                 print("处理多人")
